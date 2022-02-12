@@ -45,12 +45,12 @@
 
 CDigitalPinOut::CDigitalPinOut( const digitalPin_t& pin, const bool& activeHigh ){
     if ( pin > NUM_DIGITAL_PINS-1 ){
-        m_pin = kInvalidPin;
+        m_pin = kInvalidDigPin;
         return;
     };
     m_pin = pin;
     m_activeHigh = activeHigh;
-    ::pinMode( m_pin, OUTPUT );
+    ::pinMode( (uint8_t)m_pin, OUTPUT );
     m_lastWriteVal = NOT_A_DIGITAL_VALUE;
 };
 
@@ -58,7 +58,7 @@ CDigitalPinOut::CDigitalPinOut( const digitalPin_t& pin, const bool& activeHigh 
  Performs a validity check on itself.
 */
 const bool CDigitalPinOut::IsValid( ) {
-    return m_pin != kInvalidPin;
+    return m_pin != kInvalidDigPin;
 };
 
 /* CDigitalPinOut::SetPin
@@ -67,7 +67,7 @@ const bool CDigitalPinOut::IsValid( ) {
 digitalData_t CDigitalPinOut::SetPin( const bool& activeOrNot ) {
     _assert( IsValid(), AO_ERROR_CLASS_1, AO_ERROR_METHOD_1, STOP );
     uint8_t val = ((activeOrNot && m_activeHigh) || (!activeOrNot && !m_activeHigh));
-    ::digitalWrite( m_pin, val );
+    ::digitalWrite( (uint8_t)m_pin, val );
     m_lastWriteVal = activeOrNot;
     return m_lastWriteVal;
 };
@@ -81,8 +81,8 @@ const digitalData_t CDigitalPinOut::GetPin( ) {
     uint8_t val = (
                     (
                     /*if*/  (
-                             ( *portOutputRegister( digitalPinToPort(m_pin) )
-                                         & digitalPinToBitMask( m_pin )
+                             ( *portOutputRegister( digitalPinToPort( (uint8_t)m_pin) )
+                                         & digitalPinToBitMask( (uint8_t)m_pin )
                              )==0
                             )
                     /*then*/? 0
@@ -109,13 +109,13 @@ CDigitalPinIn::CDigitalPinIn( const digitalPin_t& pin,
                               const pinInputMode& mode,
                               const bool& activeHigh ) {
     if (pin > NUM_DIGITAL_PINS-1){
-        m_pin = kInvalidPin;
+        m_pin = kInvalidDigPin;
         return;
     }
     m_pin = pin;
     m_mode = mode;
     m_activeHigh = activeHigh;
-    ::pinMode( m_pin, m_mode );
+    ::pinMode( (uint8_t)m_pin, m_mode );
 };
 
 const bool CDigitalPinIn::IsValid( ) {
@@ -124,7 +124,7 @@ const bool CDigitalPinIn::IsValid( ) {
 
 const digitalData_t CDigitalPinIn::GetPin( ){
     _assert( !IsValid(), AO_ERROR_CLASS_2, AO_ERROR_METHOD_1, STOP );
-    const int val = ::digitalRead( m_pin );
+    const int val = ::digitalRead( (uint8_t)m_pin );
     return ( m_activeHigh? val: !(bool)val );
 };
 

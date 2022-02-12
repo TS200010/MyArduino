@@ -36,6 +36,10 @@
 // ALL PINS
 // --------
 static const uint8_t kInvalidPin = NUM_DIGITAL_PINS+1;
+// enum class pin_t : uint8_t{};
+// typedef uint8_t pin_t;
+
+
 
 // ANALOG PINS
 // -----------
@@ -47,7 +51,7 @@ typedef uint8_t analogPin_t;
 #endif
  */
 
-typedef uint8_t analogPin_t;
+enum class analogPin_t : uint8_t {};
 static const analogPin_t kAnalog0 = (analogPin_t)A0;
 static const analogPin_t kAnalog1 = (analogPin_t)A1;
 static const analogPin_t kAnalog2 = (analogPin_t)A2;
@@ -68,7 +72,7 @@ typedef uint8_t digitalPin_t;
 #endif
  */
 
-typedef uint8_t digitalPin_t;
+enum class digitalPin_t : uint8_t {};
 static const digitalPin_t kDigitalRX = (digitalPin_t)0;
 static const digitalPin_t kDigitalTX = (digitalPin_t)1;
 static const digitalPin_t kDigital2  = (digitalPin_t)2;
@@ -92,6 +96,7 @@ static const digitalPin_t kDigital18 = (digitalPin_t)18;
 static const digitalPin_t kDigital19 = (digitalPin_t)19;
 
 enum pinInputMode { kInput=INPUT, kInputPullup=INPUT_PULLUP };
+static const digitalPin_t kInvalidDigPin = (digitalPin_t)(NUM_DIGITAL_PINS+1);
 
 /*
 #ifdef _debug
@@ -176,5 +181,12 @@ void pinModeAO( digitalPin_t pin, uint8_t mode );
 //void analogWriteAO( analogPin_t pin, int val );
 void analogWriteAO( PWMPin_t pin, PWMData_t val );
 void digitalWriteAO( digitalPin_t pin, digitalData_t val );
+
+
+// Overloaded operators to avoid user having to cast everything
+// ------------------------------------------------------------
+bool operator==(const digitalPin_t& lhs, const int& rhs);
+bool operator> (const digitalPin_t& lhs, const int& rhs);
+
 
 #endif // AOCONST_H
