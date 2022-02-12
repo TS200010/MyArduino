@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <Group
+      location = "container:"
+      name = "Libraries">
+      <FileRef
+         location = "group:Sketches/libraries/AOFwkDebug">
+      </FileRef>
+      <FileRef
+         location = "group:Sketches/libraries/AOFwk">
+      </FileRef>
+      <FileRef
+         location = "group:Sketches/libraries/AOConst">
+      </FileRef>
+   </Group>
+   <Group
+      location = "container:"
+      name = "Main">
+      <FileRef
+         location = "group:Sketches/A01Elegoo_Starter_UNO_R3">
+      </FileRef>
+   </Group>
+</Workspace>
