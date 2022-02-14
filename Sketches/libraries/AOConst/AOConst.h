@@ -110,7 +110,8 @@ typedef bool digitalData_t;
 
 //pinUsedAs pinInUseAs[ 20 ];
 
-typedef bool digitalData_t;
+// typedef bool digitalData_t;
+enum class digitalData_t : uint8_t {};
 //static const digitalData_t ON           = (digitalData_t) 1;
 //static const digitalData_t OFF          = (digitalData_t) 0;
 static const bool          kActiveHigh  = true;
@@ -178,7 +179,7 @@ static const PWMData_t kPWMMin = (PWMData_t)0;
 // -----------------------------------------------------------------------
 void pinModeAO( PWMPin_t pin, uint8_t mode );
 void pinModeAO( digitalPin_t pin, uint8_t mode );
-//void analogWriteAO( analogPin_t pin, int val );
+void analogWriteAO( analogPin_t pin, int val );
 void analogWriteAO( PWMPin_t pin, PWMData_t val );
 void digitalWriteAO( digitalPin_t pin, digitalData_t val );
 

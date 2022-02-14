@@ -43,7 +43,6 @@
 // #define GET_CPP_VERSION      // Prints C++ version to Serial Monitor
 // #define RGB_LED              // Lesson 4
 // #define RGB_LED_OPTIMISED    // ... with optimised code 
-// #define RGB_LED_CPP          // ... C++ version
+ #define RGB_LED_CPP          // ... C++ version
 // #define DIGITAL_INPUTS       // Lesson 5
-#define DIGITAL_INPUTS_CPP   // ... C++ version
-
+// #define DIGITAL_INPUTS_CPP   // ... C++ version

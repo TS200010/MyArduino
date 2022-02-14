@@ -130,8 +130,9 @@ const digitalData_t CDigitalPinIn::GetPin( ){
 
 CPWMPin::CPWMPin( const PWMPin_t& pin, const PWMData_t& initialValue ){
     m_pin = pin;
+    m_lastWriteVal = initialValue;
     ::pinMode( m_pin, OUTPUT );
-    SetPin( initialValue );
+    ::analogWrite( m_pin, (int)initialValue);
 };
 
 const bool CPWMPin::IsValid( ) {
@@ -139,9 +140,15 @@ const bool CPWMPin::IsValid( ) {
 };
 
 CPWMPin::SetPin( const PWMData_t& val ){
-    _assert( !IsValid(), AO_ERROR_CLASS_3, AO_ERROR_METHOD_1, STOP );
+    _assert( IsValid(), AO_ERROR_CLASS_3, AO_ERROR_METHOD_1, STOP );
     ::analogWrite( m_pin, (int)val);
+    m_lastWriteVal = val;
 };
+
+const PWMData_t CPWMPin::GetLastWrite( ){
+    _assert( IsValid(), AO_ERROR_CLASS_3, AO_ERROR_METHOD_2, STOP );
+    return m_lastWriteVal;
+}
 
 #endif // AOFWK_CPP
 

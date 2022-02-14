@@ -40,5 +40,5 @@ void _flashLED ( int flashes1, int flashes2 );
 #define AO_ERROR_METHOD_1   1   // GetPin - Invalid Pin Number
 #define AO_ERROR_CLASS_3    3   // CPWMPin
 #define AO_ERROR_METHOD_1   1   // SetPin - Invalid Pin Number
-
+#define AO_ERROR_METHOD_2   1   // GetLastWrite - Invalid Pin Number
 #endif // AODEBUG_H

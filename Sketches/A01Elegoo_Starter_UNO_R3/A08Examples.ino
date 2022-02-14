@@ -13,6 +13,7 @@ void loop() {
 
 // **************************************** BLINK
 #ifdef BLINK
+
 void setup() {
   Serial.begin(9600);
   printFreeSRAM();
@@ -83,9 +84,9 @@ void setup()
   pinModeAO( kRedLED,   OUTPUT );
   pinModeAO( kGreenLED, OUTPUT );
   pinModeAO( kBlueLED,  OUTPUT );
-  analogWriteAO( kRedLED, 0 ); 
-  analogWriteAO( kGreenLED, 0 );
-  analogWriteAO( kBlueLED,  0 );
+  analogWriteAO( kRedLED, kPWMMin ); 
+  analogWriteAO( kGreenLED, kPWMMin );
+  analogWriteAO( kBlueLED,  kPWMMin );
 }
 
 void loop()
@@ -174,11 +175,10 @@ void crossFade( const PWMPin_t& fadeFromPin, const PWMPin_t& fadeToPin) {
 #ifdef RGB_LED_CPP
 
 // Constants User can update to explore the behaviour of the example
-const uint8_t kPWMBrightnessMax = 10;            // Maximum PWM value controls maximum brightness ( 0 to kPWMMax )
-const int kTotalCycleTime = kTenSeconds;         // Number of milliseconds for the complete cycle of 
-                                                  //   three colours. Note how the constants improve readability here.
+const uint8_t kPWMBrightnessMax = 10;           // Maximum PWM value controls maximum brightness ( 0 to kPWMMax )
+const int kTotalCycleTime = kTenSeconds;        // Number of milliseconds for the complete cycle of 
+                                                //   three colours. Note how the constants improve readability here.
 const int kLEDUpdateDelay = kTotalCycleTime / (kPWMBrightnessMax + 1); 
-
 
 CPWMPin  g_BlueLED(  kPWM3, kActiveHigh );
 CPWMPin  g_GreenLED( kPWM5, kActiveHigh );
@@ -189,6 +189,8 @@ void setup(){
   printFreeSRAM();
   delay ( 200 );                            // Stops brief LED flash on program loading                
 }
+
+
 
 // Function Specification to prevent IDE throwing compile errors
 void crossFade( const CPWMPin& fadeFromPin, const CPWMPin& fadeToPin);  
@@ -264,4 +266,3 @@ void loop()
 }
 
 #endif // DIGITAL_INPUTS_CPP
-

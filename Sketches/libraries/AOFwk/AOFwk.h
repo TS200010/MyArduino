@@ -48,13 +48,15 @@ class CDigitalPinIn : public CPin {
     pinInputMode        m_mode;
 };
 
-class CPWMPin{
+class CPWMPin : public CPin {
   public:
-                        CPWMPin( const PWMPin_t& pPin, const PWMData_t& init);
+                        CPWMPin( const PWMPin_t& pin, const PWMData_t& init);
     const bool          IsValid();
                         SetPin(  const PWMData_t& val );
+    const PWMData_t     GetLastWrite();
   MAKE_PUBLIC_FOR_TESTING:
     PWMPin_t            m_pin;
+    PWMData_t           m_lastWriteVal;
 };
 
 #endif AOFWK_H
