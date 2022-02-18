@@ -27,9 +27,16 @@
 #include "math.h"
 #include <LiquidCrystal.h>
 
+// LED Constants and Setup
+const int redPin = 6;
+const int bluePin = 3;
+const int greenPin = 5;
+
+// Temperature and Sensor Constants and Setup
 const int soPin  = 8;   // SO=Serial Out
 const int csPin  = 9;   // CS = chip select CS pin
 const int sckPin = 10;  // SCK = Serial Clock pin
+
 float EMA=0;
 float alpha=0.3;
 
@@ -46,28 +53,49 @@ public:
   tState GetState(){ return state; };
 };
 
+MAX6675 tempSensor(sckPin, csPin, soPin);// create instance object of MAX6675
 
-MAX6675 Module(sckPin, csPin, soPin);// create instance object of MAX6675
+// LCD Constants and Setup
 
 // initialize the library by associating any needed LCD interface pin
 // with the arduino pin number it is connected to
-const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
-LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+const int LCDrs = 12;
+const int LCDen = 11;
+const int LCDd4 = 13;
+const int LCDd5 = 4;
+const int LCDd6 = 7;
+const int LCDd7 = 2;
+LiquidCrystal lcd(LCDrs, LCDen, LCDd4, LCDd5, LCDd6, LCDd7);
 
-void setup() {          
+void setup() {      
+  pinMode ( redPin, OUTPUT );
+  pinMode ( bluePin, OUTPUT );
+  pinMode ( greenPin, OUTPUT );
+  analogWrite ( redPin, 255 );
+  delay( 1000 );
+  analogWrite ( redPin, 0 );
+  analogWrite ( greenPin, 255 );
+  delay ( 1000 );
+  analogWrite ( greenPin, 0 );
+  analogWrite ( bluePin, 255 );
+          
   Serial.begin(9600);// initialize serial monitor with 9600 baud
   Serial.println("MAX6675"); 
   // set up the LCD's number of columns and rows:
   lcd.begin(16, 2);
   // Print a message to the LCD
   lcd.print("EMA     Temp (v1.1)");
+  // Display Red, Orange and Yellow on the LCD
+
+
+  
 }
 
 void loop() {
    int startms = millis();
 //   float t=Module.readCelsius();
    temperature t; 
-   t.SetTemp(Module.readCelsius());
+   t.SetTemp(tempSensor.readCelsius());
    if (isnan(EMA)) {EMA=0;};
    EMA = alpha*t.GetTemp() + (1-alpha) * EMA;
    //Serial.print("EMA="); 
