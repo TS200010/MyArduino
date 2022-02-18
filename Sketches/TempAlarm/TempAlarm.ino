@@ -28,14 +28,14 @@
 #include <LiquidCrystal.h>
 
 // LED Constants and Setup
-const int redPin = 6;
-const int bluePin = 3;
-const int greenPin = 5;
+static const int redPin = 6;
+static const int bluePin = 3;
+static const int greenPin = 5;
 
 // Temperature and Sensor Constants and Setup
-const int soPin  = 8;   // SO=Serial Out
-const int csPin  = 9;   // CS = chip select CS pin
-const int sckPin = 10;  // SCK = Serial Clock pin
+static const int soPin  = 8;   // SO=Serial Out
+static const int csPin  = 9;   // CS = chip select CS pin
+static const int sckPin = 10;  // SCK = Serial Clock pin
 
 float EMA=0;
 float alpha=0.3;
@@ -43,41 +43,61 @@ float alpha=0.3;
 enum tState {tRising, tFalling, tAmbient, tSteady};
 
 class temperature{
-private: 
-  float val;
-  tState state;
 public:
   SetTemp( const float& t) { val = t; };
   SetState ( const tState& s) {state = s;};
   float GetTemp(){ return val; };
   tState GetState(){ return state; };
+private: 
+  float val;
+  tState state;
 };
 
+// Colours and Colour Management
+
+struct colour {
+public:
+int r, g, b;   
+};
+
+// See https://www.rapidtables.com/web/color/RGB_Color.html
+
+const colour g_red =        {255, 0,   0   };
+const colour g_green =      {0,   255, 0   };
+const colour g_blue =       {0,   0,   255 };
+const colour g_yellow =     {255, 255, 0   };
+const colour g_cyan =       {0,   255, 255 };
+const colour g_magenta =    {255, 0,   255 };
+
+colour rainbow [6] = {g_red, g_green, g_blue, g_yellow, g_cyan, g_magenta }; 
+
+const void midColour( const colour& col1, const colour& col2, const uint8_t& level) {
+  }; 
+
+  
 MAX6675 tempSensor(sckPin, csPin, soPin);// create instance object of MAX6675
 
 // LCD Constants and Setup
 
 // initialize the library by associating any needed LCD interface pin
 // with the arduino pin number it is connected to
-const int LCDrs = 12;
-const int LCDen = 11;
-const int LCDd4 = 13;
-const int LCDd5 = 4;
-const int LCDd6 = 7;
-const int LCDd7 = 2;
+static const int LCDrs = 12;
+static const int LCDen = 11;
+static const int LCDd4 = 13;
+static const int LCDd5 = 4;
+static const int LCDd6 = 7;
+static const int LCDd7 = 2;
 LiquidCrystal lcd(LCDrs, LCDen, LCDd4, LCDd5, LCDd6, LCDd7);
 
-void setup() {      
-  pinMode ( redPin, OUTPUT );
-  pinMode ( bluePin, OUTPUT );
-  pinMode ( greenPin, OUTPUT );
-  analogWrite ( redPin, 255 );
-  delay( 1000 );
-  analogWrite ( redPin, 0 );
-  analogWrite ( greenPin, 255 );
-  delay ( 1000 );
-  analogWrite ( greenPin, 0 );
-  analogWrite ( bluePin, 255 );
+void setup() {  
+// Display basic colours on the LCD    
+
+  for (int i=0; i<=5; i++) {
+    analogWrite( redPin,   rainbow[i].r);
+    analogWrite( greenPin, rainbow[i].g);
+    analogWrite( bluePin,  rainbow[i].b);
+    delay (1000 );  
+  };
           
   Serial.begin(9600);// initialize serial monitor with 9600 baud
   Serial.println("MAX6675"); 
@@ -85,10 +105,8 @@ void setup() {
   lcd.begin(16, 2);
   // Print a message to the LCD
   lcd.print("EMA     Temp (v1.1)");
-  // Display Red, Orange and Yellow on the LCD
 
 
-  
 }
 
 void loop() {
