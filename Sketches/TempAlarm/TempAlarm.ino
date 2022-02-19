@@ -27,7 +27,6 @@
 #include "math.h"
 #include <LiquidCrystal.h>
 
-
 // LED Constants and Setup
 static const int redPin = 6;
 static const int bluePin = 3;
