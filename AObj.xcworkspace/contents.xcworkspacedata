@@ -18,6 +18,9 @@
       location = "container:"
       name = "Main">
       <FileRef
+         location = "group:Sketches/AOTest">
+      </FileRef>
+      <FileRef
          location = "group:Sketches/A01Elegoo_Starter_UNO_R3">
       </FileRef>
    </Group>
