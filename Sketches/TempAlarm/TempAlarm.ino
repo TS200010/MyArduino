@@ -89,7 +89,31 @@ static const int LCDd6 = 7;
 static const int LCDd7 = 2;
 LiquidCrystal lcd(LCDrs, LCDen, LCDd4, LCDd5, LCDd6, LCDd7);
 
+<<<<<<< Updated upstream
 void setup() {  
+=======
+File dataFile;
+
+void setup() { 
+
+
+// Say Hello 
+   lcd.print( "Hello world" );
+
+   Serial.begin(9600);// initialize serial monitor with 9600 baud
+
+   Serial.print("Initializing SD card...");
+   if (!SD.begin(10)) {
+      Serial.println("SD initialization failed!");
+   };
+   Serial.println("SD initialization done.");
+
+  dataFile = SD.open("datalog.txt", FILE_WRITE);
+  if (dataFile) {
+    Serial.println("dataFile OK");
+  };
+
+>>>>>>> Stashed changes
 // Display basic colours on the LCD    
 
   for (int i=0; i<=5; i++) {
@@ -123,6 +147,7 @@ void loop() {
    Serial.print(t.GetTemp());
    Serial.print(" ");
    Serial.println("");
+<<<<<<< Updated upstream
    delay(500-millis()-startms);
    
 
@@ -135,4 +160,39 @@ void loop() {
   lcd.print( "   " );
   if (!isnan(t.GetTemp())) { lcd.print( t.GetTemp() ); } else {lcd.print( "NoVal");};
   lcd.print( "   " );
+=======
+
+   // set the cursor to column 0, line 1
+   // (note: line 1 is the second row, since counting begins with 0):
+   lcd.setCursor(0, 1);
+   // print the number of seconds since reset:
+   //lcd.print(millis() / 1000);
+   if (!isnan(EMA)) { 
+     lcd.print( EMA ); 
+     dataFile.print( EMA ); 
+     dataFile.print(", "); } 
+   else { 
+     lcd.print( "NoVal"); 
+     dataFile.print( "NoVal, " );
+   };
+   lcd.print( "   " );
+   float temp = t.GetTemp();
+   if (!isnan( temp ) ) {
+     lcd.print( temp ); 
+     dataFile.println( temp ); } 
+   else { 
+     lcd.print( "NoVal"); 
+     dataFile.println( "NoVal" ); 
+   };
+   lcd.print( "   " );
+   dataFile.flush();
+  
+   int del = 500-(millis()-startms);
+//   Serial.print( "Delay = " );
+//
+
+   delay (del);
+
+ 
+>>>>>>> Stashed changes
 }
