@@ -68,7 +68,7 @@ digitalData_t CDigitalPinOut::SetPin( const bool& activeOrNot ) {
     _assert( IsValid(), AO_ERROR_CLASS_1, AO_ERROR_METHOD_1, STOP );
     uint8_t val = ((activeOrNot && m_activeHigh) || (!activeOrNot && !m_activeHigh));
     ::digitalWrite( (uint8_t)m_pin, val );
-    m_lastWriteVal = activeOrNot;
+    m_lastWriteVal = (digitalData_t)activeOrNot;
     return m_lastWriteVal;
 };
 
@@ -89,7 +89,7 @@ const digitalData_t CDigitalPinOut::GetPin( ) {
                     /*else*/: 1
                     )
                   );
-    return ((val && m_activeHigh) || (!val && !m_activeHigh));
+    return (digitalData_t)((val && m_activeHigh) || (!val && !m_activeHigh));
 };
 
 /* CDigitalPinOut::TogglePin
@@ -125,7 +125,7 @@ const bool CDigitalPinIn::IsValid( ) {
 const digitalData_t CDigitalPinIn::GetPin( ){
     _assert( !IsValid(), AO_ERROR_CLASS_2, AO_ERROR_METHOD_1, STOP );
     const int val = ::digitalRead( (uint8_t)m_pin );
-    return ( m_activeHigh? val: !(bool)val );
+    return (digitalData_t)( m_activeHigh? val: !(bool)val );
 };
 
 CPWMPin::CPWMPin( const PWMPin_t& pin, const PWMData_t& initialValue ){
