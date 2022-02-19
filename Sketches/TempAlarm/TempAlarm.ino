@@ -92,10 +92,26 @@ static const int LCDd6 = 7;
 static const int LCDd7 = 2;
 LiquidCrystal lcd(LCDrs, LCDen, LCDd4, LCDd5, LCDd6, LCDd7);
 
+
 File dataFile;
 
 void setup() { 
 
+// Say Hello 
+   lcd.print( "Hello world" );
+
+   Serial.begin(9600);// initialize serial monitor with 9600 baud
+
+   Serial.print("Initializing SD card...");
+   if (!SD.begin(10)) {
+      Serial.println("SD initialization failed!");
+   };
+   Serial.println("SD initialization done.");
+
+  dataFile = SD.open("datalog.txt", FILE_WRITE);
+  if (dataFile) {
+    Serial.println("dataFile OK");
+  };
 
 // Say Hello 
    lcd.print( "Hello world" );
@@ -168,9 +184,6 @@ void loop() {
    dataFile.flush();
   
    int del = 500-(millis()-startms);
-//   Serial.print( "Delay = " );
-//
-Serial.println( del );
    delay (del);
 
  
