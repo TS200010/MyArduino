@@ -22,10 +22,13 @@
 */
 
 
-
+#include "AOUtils.h"
 #include "max6675.h" 
 #include "math.h"
-#include <LiquidCrystal.h>
+#include "LiquidCrystal.h"
+#include "MemoryFree.h"
+#include <SPI.h>
+#include <SD.h>
 
 // LED Constants and Setup
 static const int redPin = 6;
@@ -35,7 +38,7 @@ static const int greenPin = 5;
 // Temperature and Sensor Constants and Setup
 static const int soPin  = 8;   // SO=Serial Out
 static const int csPin  = 9;   // CS = chip select CS pin
-static const int sckPin = 10;  // SCK = Serial Clock pin
+static const int sckPin = A0;  // SCK = Serial Clock pin
 
 float EMA=0;
 float alpha=0.3;
@@ -81,17 +84,36 @@ MAX6675 tempSensor(sckPin, csPin, soPin);// create instance object of MAX6675
 
 // initialize the library by associating any needed LCD interface pin
 // with the arduino pin number it is connected to
-static const int LCDrs = 12;
-static const int LCDen = 11;
-static const int LCDd4 = 13;
+static const int LCDen = A1; // was 11, 12,13
+static const int LCDrs = A2;
+static const int LCDd4 = A3;
 static const int LCDd5 = 4;
 static const int LCDd6 = 7;
 static const int LCDd7 = 2;
 LiquidCrystal lcd(LCDrs, LCDen, LCDd4, LCDd5, LCDd6, LCDd7);
 
-void setup() {  
-// Display basic colours on the LCD    
+File dataFile;
 
+void setup() { 
+
+
+// Say Hello 
+   lcd.print( "Hello world" );
+
+   Serial.begin(9600);// initialize serial monitor with 9600 baud
+
+   Serial.print("Initializing SD card...");
+   if (!SD.begin(10)) {
+      Serial.println("SD initialization failed!");
+   };
+   Serial.println("SD initialization done.");
+
+  //dataFile = SD.open("datalog.txt", FILE_WRITE);
+  if (dataFile) {
+    Serial.println("dataFile OK");
+  };
+
+// Display basic colours on the LCD    
   for (int i=0; i<=5; i++) {
     analogWrite( redPin,   rainbow[i].r);
     analogWrite( greenPin, rainbow[i].g);
@@ -99,19 +121,15 @@ void setup() {
     delay (1000 );  
   };
           
-  Serial.begin(9600);// initialize serial monitor with 9600 baud
   Serial.println("MAX6675"); 
   // set up the LCD's number of columns and rows:
   lcd.begin(16, 2);
   // Print a message to the LCD
   lcd.print("EMA     Temp (v1.1)");
-
-
 }
 
 void loop() {
-   int startms = millis();
-//   float t=Module.readCelsius();
+  int startms = millis();
    temperature t; 
    t.SetTemp(tempSensor.readCelsius());
    if (isnan(EMA)) {EMA=0;};
@@ -123,16 +141,37 @@ void loop() {
    Serial.print(t.GetTemp());
    Serial.print(" ");
    Serial.println("");
-   delay(500-millis()-startms);
-   
 
-  // set the cursor to column 0, line 1
-  // (note: line 1 is the second row, since counting begins with 0):
-  lcd.setCursor(0, 1);
-  // print the number of seconds since reset:
-  //lcd.print(millis() / 1000);
-  if (!isnan(EMA)) { lcd.print( EMA ); } else {lcd.print( "NoVal");};
-  lcd.print( "   " );
-  if (!isnan(t.GetTemp())) { lcd.print( t.GetTemp() ); } else {lcd.print( "NoVal");};
-  lcd.print( "   " );
+   // set the cursor to column 0, line 1
+   // (note: line 1 is the second row, since counting begins with 0):
+   lcd.setCursor(0, 1);
+   // print the number of seconds since reset:
+   //lcd.print(millis() / 1000);
+   if (!isnan(EMA)) { 
+     lcd.print( EMA ); 
+     dataFile.print( EMA ); 
+     dataFile.print(", "); } 
+   else { 
+     lcd.print( "NoVal"); 
+     dataFile.print( "NoVal, " );
+   };
+   lcd.print( "   " );
+   float temp = t.GetTemp();
+   if (!isnan( temp ) ) {
+     lcd.print( temp ); 
+     dataFile.println( temp ); } 
+   else { 
+     lcd.print( "NoVal"); 
+     dataFile.println( "NoVal" ); 
+   };
+   lcd.print( "   " );
+   dataFile.flush();
+  
+   int del = 500-(millis()-startms);
+//   Serial.print( "Delay = " );
+//
+Serial.println( del );
+   delay (del);
+
+ 
 }
