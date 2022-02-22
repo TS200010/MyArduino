@@ -27,6 +27,8 @@
 #define PLOTTING
 #define TEST_VERBOSE
 // #define SHOW_LED_STARTUP
+#define LCD
+// #define TEST_TEMP_COLOURS
 
 #include "AOUtils.h"
 #include "max6675.h" 
@@ -36,6 +38,8 @@
 #include <SPI.h>
 #include <SD.h>
 #include <TimeLib.h>
+#include "Task.h"
+#include "TaskScheduler.h"
 
 
 // COLOURS AND COLOUR MANAGEMENT
@@ -67,6 +71,8 @@ private:
 // LED
 // ===
 
+// TODO Make LED a Class
+
 // LED Constants and Setup
 static const int redPin = 6;
 static const int bluePin = 3;
@@ -87,8 +93,8 @@ const void TurnLEDOff( ){
 // =======================
 
 // Temperature and Sensor Constants and Setup
-static const int soPin  = 8;   // SO=Serial Out
-static const int csPin  = 9;   // CS = chip select CS pin
+static const int soPin  = 8;   // SO  =Serial Out
+static const int csPin  = 9;   // CS  = chip select CS pin
 static const int sckPin = A0;  // SCK = Serial Clock pin
 
 MAX6675 tempSensor(sckPin, csPin, soPin);// create instance object of MAX6675
@@ -117,18 +123,19 @@ static colour GreenRedPctToColour ( const int &percent );
                            
 private:
        colour TempToColour();
-       float  temp             = NAN;
-       float  lastTemp         = NAN;
+       float  temp            = NAN;
+       float  lastTemp        = NAN;
        tState state           = tSteady;
        colour col             = g_magenta;
        int    EMA             = NAN;
        int    lastEMA         = NAN;
-const  float  alpha           = 0.3;
+const  float  alpha           = 1.0; // Used in EMA calculation
 };
 
 void TempProbe::SetTemp( const float &t){
   lastTemp = temp;
   temp = t;
+  
 // Calculate the "colour" of this temperature  
   TempToColour();
 
@@ -137,14 +144,14 @@ void TempProbe::SetTemp( const float &t){
   if ( isnan( EMA ) ) { EMA=0; };
   EMA = alpha*temp + ( 1-alpha ) * EMA;
   
-// TODO Calculate if rising or falling
+// Calculate if temperature is rising, falling or steady
   if (EMA>lastEMA) 
     { state = tRising; }
   else
   if (EMA=lastEMA) 
     { state = tSteady; }
   else 
-    {state = tFalling;};
+    { state = tFalling;};
 };
 
 colour TempProbe::GreenRedPctToColour ( const int &pct ) {
@@ -170,14 +177,14 @@ colour TempProbe::GreenRedPctToColour ( const int &pct ) {
   return col; 
 };
 
-// Calculate this probes shade of Red To Green
+// Calculates this probes shade of Red To Green
 colour TempProbe::TempToColour(){
   int colPct;
   if ( !isnan( temp) ){ 
     if ( temp<tMin ){ colPct = 0; 
     }
     else 
-    if ( temp>tMax ) { colPct = 100; 
+    if ( temp>tMax ){ colPct = 100;
     }
     else { colPct = 100 - int( 100 * float(1 - float( temp-tMin ) / float( tMax-tMin )));
     };
@@ -224,8 +231,6 @@ TempProbe probe;
 
 void setup() { 
   Serial.begin(9600);// initialize serial monitor with 9600 baud
-// Say Hello
-  lcd.print( "Hello world" );
 
 // Setup SD if Logging is enabled
 #ifdef DATA_LOGGING
@@ -258,9 +263,13 @@ void setup() {
   TurnLEDOff();
 #endif SHOW_LED_STARTUP
 
+#ifdef LCD
+// Say Hello
+  lcd.print( "Hello world" );
 // set up the LCD's number of columns and rows:
   lcd.begin(16, 2);
   lcd.print("    Temp (v1.2)");
+#endif // LCD
 
 // SETUP TESTS
 // ===========
@@ -277,17 +286,33 @@ void setup() {
   
 }; // End Setup
 
-// LOOP
-// ====
+// MAIN TASK
+// =========
 
-void loop() {
+class TempAlarm : public Task {
+  public:
+  void TempAlarmMain();
+  virtual void run(uint32_t now);     
+  virtual bool canRun(uint32_t now);  
+};
+
+void TempAlarm::run( uint32_t now ){
+  TempAlarmMain();
+};
+
+bool TempAlarm::canRun( uint32_t now ){
+  return true;
+};
+
+void TempAlarm::TempAlarmMain() {
 
   int startms = millis(); // Save start ms so we can accurately time each loop
 
-#ifdef TEST_VERBOSE1
+#ifdef TEST_TEMP_COLOURS
 for (int i=tMin-2; i<=tMax+2; i++ ){
-  probe.SetTemp( i );
-  ShowLED( probe.GetColour() );
+  TempProbe p;
+  p.SetTemp( i );
+  ShowLED( p.GetColour() );
   delay(500);
   TurnLEDOff();  
 };
@@ -300,13 +325,14 @@ Serial.print("  State="); Serial.println(probe.GetState());
     
 // Read the temperature(s) and save
   probe.SetTemp(tempSensor.readCelsius());
-  colour col = probe.GetColour();
-  
+
 #ifdef TEST_VERBOSE
+{ colour col = probe.GetColour();
 Serial.print("SetTemp Colour = ");
 Serial.println(col.r);
 Serial.println(col.g);
 Serial.println(col.b);
+};
 #endif
 
   ShowLED( probe.GetColour() );
@@ -328,6 +354,7 @@ Serial.println(col.b);
 #endif // PLOTTING
 
 // Show values on LCD
+#ifdef LCD
 // set the cursor to column 0, line 1
 // (note: line 1 is the second row, since counting begins with 0):
 // Display on LCD
@@ -345,6 +372,7 @@ Serial.println(col.b);
     lcd.print( "NoVal"); 
   };
   lcd.print( "   " );
+#endif  // LCD
 
 #ifdef DATA_LOGGING
 // Print to file 
@@ -370,12 +398,24 @@ Serial.println(col.b);
     SDWriteCnt = SDWriteCnt + 1;
   };
 #endif // Data_LOGGING
+
   int endms = millis();
   int del = readInterval-(endms-startms);
-  Serial.print("startms=");Serial.print(startms); Serial.print("  endms="); Serial.print(endms);
-  Serial.print("  del="); Serial.print(del);
   if (del<readInterval && del>0) { 
     delay (del);
-  }; // During tesing this condition can be invalid as test takes too long - even go -ve
-  Serial.println(" ... back from delay()");
+  }; // During tesing this condition can be invalid as test takes too long - can even go -ve
 };
+
+// Main Loop
+// =========
+
+void loop()
+{
+  TempAlarm tempAlarm;
+
+  Task *tasks[] = { &tempAlarm };
+
+  TaskScheduler scheduler (tasks, NUM_TASKS(tasks) );
+
+  scheduler.runTasks();  // Never returns
+}
