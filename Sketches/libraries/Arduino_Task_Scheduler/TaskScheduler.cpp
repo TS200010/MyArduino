@@ -22,9 +22,10 @@ void TaskScheduler::runTasks() {
         Task **tpp = tasks;
         for (int t = 0; t < numTasks; t++) {
             Task *tp = *tpp;
+//            Serial.println("Scheduler");
             if (tp->canRun(now)) {
                 tp->run(now);
-                break;
+               break;
             }
             tpp++;
         }
