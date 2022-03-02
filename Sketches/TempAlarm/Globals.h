@@ -33,15 +33,22 @@ static const int LCD_D7   = 2;   // D7 = Data 7
 // DATA LOGGING PINS
 // =================
 static const int SD_CS    = 10; // CS   = Chip Select
-static const int SD_SCK   = 13; // SCK  = Serial Clock
 static const int SD_MOSI  = 11; // MOSI = Master Out Slave In
 static const int SD_MISO  = 12; // MOSI = Master In Slave Out
+static const int SD_SCK   = 0 ; // SCK  = Serial Clock
 
 // SENSOR PINS
 // ===========
 static const int MAXX_SO   = 8;   // SO  = Serial Out
 static const int MAXX_CS   = 9;   // CS  = chip select 
 static const int MAXX_SCK  = A0;  // SCK = Serial Clock pin
+
+// MULTIPLEXOR PINS
+// ================
+static const int MUX_A0 = A4;
+static const int MUX_A1 = A5;
+static const int MUX_A2 = 13;
+static const int MUX_A3 = 9;
 
 
 #endif

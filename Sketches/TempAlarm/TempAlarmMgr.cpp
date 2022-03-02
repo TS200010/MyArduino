@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include "max6675.h" 
 #include <TimeLib.h>
+#include "light_CD74HC4067.h"
 
 #include "Globals.h"
 #include "TempAlarmMgr.h"
@@ -18,6 +19,9 @@ TempAlarmMgr::TempAlarmMgr() : TimedTask ( millis() ){ }
 bool TempAlarmMgr::Start() {
   // TODO Add full set of probes and LED + ambient temp Probe.
   tempProbes[0] = new TempProbe( MAXX_SCK, MAXX_CS, MAXX_SO );
+ // CD74HC4067 *mux = new CD74HC4067( MUX_A0, MUX_A1, MUX_A2, MUX_A3 );
+  CD74HC4067 mux( MUX_A0, MUX_A1, MUX_A2, MUX_A3 );
+  tempProbes[0]->SetMux( &mux, 0 );
   triColLEDs[0] = new TriColLED( LED_RED, LED_GRN, LED_BLU );
 
   Task *tasks[ ] = { this, triColLEDs[0] };
