@@ -24,7 +24,7 @@
  * MAX SCK         to digital pin A0
  * LCD En   pin 6  to digital pin A1
  * LCD RS   pin 4  to digital pin A2
- * LCD D4   pin 11 to digital pin A2
+ * LCD D4   pin 11 to digital pin A3
 
  * LCD R/W pin 5 to ground
  * LCD VSS pin 1 to ground
@@ -32,6 +32,10 @@
  * 10K potentiometer VR1:
  * VR1 ends to +5V and ground
  * LCD VO  pin 3 to VR1 wiper
+ 
+ * After adding Multiplexor
+ * ========================
+
 */
 
 #include "Globals.h"
@@ -107,6 +111,10 @@ void const ShowStartUpLEDs(){
 void setup() { 
   Serial.begin(9600);// initialize serial monitor with 9600 baud
 
+#ifdef USE_LCD
+  StartLCD();
+#endif // USE_LCD
+
 #ifdef DATA_LOGGING
   StartDataLogging();
 #endif // DATA_LOGGING
@@ -115,9 +123,7 @@ void setup() {
   ShowStartUpLEDs();
 #endif // SHOW_LED_STARTUP
 
-#ifdef USE_LCD
-  StartLCD();
-#endif // USE_LCD
+
 
 // TESTS ALL PLACED HERE
 // =====================

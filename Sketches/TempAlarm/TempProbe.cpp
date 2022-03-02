@@ -6,18 +6,18 @@
 #include "Colour.h"
 
 TempProbe::TempProbe( int _sckPin, int _csPin, int _soPin ) 
-                         : /*TimedTask( millis() ),*/ sckPin( _sckPin ), csPin( _csPin ), soPin( _soPin ), 
-                           tempSensor( _sckPin, _csPin, _soPin ) { };
-
-/*void TempProbe::run(uint32_t now){
-  SetTemp();
-  incRunTime( readInterval );
-}
-*/
-                         
+                         : sckPin( _sckPin ), csPin( _csPin ), soPin( _soPin ), tempSensor( _sckPin, _csPin, _soPin ) { };
+                                                   
 void TempProbe::SetTemp( ){
   lastTemp = temp;
+  
+  if ( muxChannel != noMux ){
+    mux->channel( muxChannel );
+  }
+
   temp = tempSensor.readCelsius();
+  
+
   
 // Calculate the "colour" of this temperature  
   TempToColour();
