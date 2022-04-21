@@ -17,8 +17,6 @@ void TempProbe::SetTemp( ){
 
   temp = tempSensor.readCelsius();
   
-
-  
 // Calculate the "colour" of this temperature  
   TempToColour();
 
@@ -46,6 +44,10 @@ void TempProbe::SetTemp( ){
 // TODO Determine if we need to raise an alarm
     
 };
+
+void TempProbe::HasGasBeenLeftOn(){
+  
+}
 
 void TempProbe::ForceTemp( int _temp ){
   temp = _temp;
@@ -78,21 +80,21 @@ colour TempProbe::GreenRedPctToColour ( const int &pct ) {
 // Calculates this probes shade of Red To Green
 colour TempProbe::TempToColour(){
   int colPct;
-  if ( !isnan( temp) ){ 
-    if ( temp<tMin ){ colPct = 0; 
+  col = g_blue;   // Set to blue as default
+  if ( temp!=0 || (isnan( temp ))  ){ 
+    if ( temp<g_tMin ){ colPct = 0; 
     }
     else 
-    if ( temp>tMax ){ colPct = 100;
+    if ( temp>g_tMax ){ colPct = 100;
     }
-    else { colPct = 100 - int( 100 * float(1 - float( temp-tMin ) / float( tMax-tMin )));
+    else { colPct = 100 - int( 100 * float(1 - float( temp-g_tMin ) / float( g_tMax-g_tMin )));
     };
     col = GreenRedPctToColour( colPct );
-  }
-  else
-    col = g_blue;
+  };
 
 #ifdef TEST_VERBOSE
 Serial.flush(); Serial.println("");
+Serial.print( "Channel="); Serial.println( muxChannel );
 Serial.print("Temp="); Serial.print( temp ); Serial.print(", colPct="); Serial.print(colPct); 
 Serial.print(", col="); Serial.print(col.r); Serial.print(" "); Serial.print(col.g); Serial.print(" "); Serial.println(col.b);
 #endif // TEST_VERBOSE
