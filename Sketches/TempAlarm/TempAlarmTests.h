@@ -5,5 +5,6 @@
 
 void Test_GreenRedPctToColour();
 void Test_TempColours();
+void Test_MessageQueue();
 
 #endif

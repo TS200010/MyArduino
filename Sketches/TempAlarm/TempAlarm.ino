@@ -36,9 +36,11 @@
  * After adding Multiplexor
  * ========================
 
+ * See constants in globals.h
+ 
 */
 
-#include "Globals.h"
+
 #include "AOUtils.h"
 #include "math.h"
 #include "LiquidCrystal.h"
@@ -49,19 +51,32 @@
 #include "Task.h"
 #include "TaskScheduler.h"
 
+#include "Globals.h"
 #include "Colour.h"
 #include "TriColLED.h"
 #include "TempProbe.h"
 #include "TempAlarmMgr.h"
+#include "TempAlarmTests.h"
 
 
-// Declare global variables
+// Global variables
 File dataFile;
 LiquidCrystal lcd(LCD_RS, LCD_EN, LCD_D4, LCD_D5, LCD_D6, LCD_D7);
+volatile bool userButtonInterrupt = false;
+unsigned long buttonTime = 0;
+unsigned long lastButtonTime = 0;
 
-// TODO What to do with this...
-//int SDWriteCnt = 0;  // To track SD versus LCD writes 
-
+void UserButtonISR(){
+  Serial.println("ISR Entered");
+  delay (100000 );
+  buttonTime = millis();
+  if (buttonTime-lastButtonTime > g_debounceTime ){
+    // TODO ISR Code Here
+     Serial.println("Interrupt Created");
+    userButtonInterrupt = true;
+    lastButtonTime = buttonTime;
+  };
+};
 
 #ifdef DATA_LOGGING
 void const StartDataLogging(){
@@ -74,24 +89,47 @@ void const StartDataLogging(){
 #ifdef USE_LCD
 void const StartLCD(){
   lcd.print( "Hello world" );
+  delay(1000);
 // set up the LCD's number of columns and rows:
   lcd.begin(16, 2);
-  lcd.print("    Temp (v1.2)");
+  lcd.print("Temp Alarm(v1.3)");
 }
 #endif // USE_LCD
 
 void const ShowStartUpLEDs(){
-  TriColLED tcl( LED_RED, LED_GRN, LED_BLU);
-  
+  PCA9685 pwmController;
+  pwmController.resetDevices();       // Resets all PCA9685 devices on i2c line
+  pwmController.init();               // Initializes module using default totem-pole driver mode, and default disabled phase balancer
+  pwmController.setPWMFrequency(100); // Set PWM freq to 100Hz (default is 200Hz, supports 24Hz to 1526Hz)
+  pwmController.setChannelPWM( 0, 64<<4); // Set PWM to 128/255, shifted into 4096-land
+  delay( 100 );
+
+  #ifdef TEST_VERBOSE  
+    Serial.print("PCA9685 PWM Controller should display 2048 -> ");
+    Serial.println(pwmController.getChannelPWM(0)); // Should output 2048, which is 128 << 4
+  #endif
+
+// TriColLED tcl{ LED1_CHAN, &pwmController };
+  TriColLED tcl[ g_numLEDs ]= { 
+    TriColLED( LED1_CHAN, &pwmController ),
+    TriColLED( LED2_CHAN, &pwmController ),
+    TriColLED( LED3_CHAN, &pwmController ),
+    TriColLED( LED4_CHAN, &pwmController ),
+    TriColLED( LED5_CHAN, &pwmController ) 
+  };
+
   // Cycle through the colours so we know the LED(s) are working correctly
   colour rainbow [6] = {g_red, g_green, g_blue, g_yellow, g_cyan, g_magenta }; 
   for (int i=0; i<=5; i++) {
-    tcl.SetColour( rainbow[i] );
-    tcl.ShowLED( );
-    delay (500 );
+    for (int j=0; j<g_numLEDs; j++ ){
+      tcl[j].SetColour( rainbow[i] );
+      tcl[j].ShowLED( );
+    };
+    delay (1000 );
   };  
-  tcl.TurnLEDOff();
-  
+ // tcl[0].SetColour( g_black );
+  delay(1000);
+ /*
   // ... and also display Green to Red and back
   for (int i=0; i<=99; i++ ){
     tcl.SetColour( TempProbe::GreenRedPctToColour( i ) );
@@ -103,13 +141,18 @@ void const ShowStartUpLEDs(){
      tcl.ShowLED( ); 
     delay( 20 );   
   };    
-  tcl.TurnLEDOff();
-};  
+  tcl.SetColour( g_black );
+  */
+};  // End ShowStartUpLEDs()
+
 
 // SETUP
 // =====
 void setup() { 
-  Serial.begin(9600);// initialize serial monitor with 9600 baud
+  Serial.begin(9600);
+  Serial.println(F("TempAlarm Started"));
+  Serial.print(F("Free RAM = ")); 
+  Serial.println(freeMemory());
 
 #ifdef USE_LCD
   StartLCD();
@@ -118,12 +161,10 @@ void setup() {
 #ifdef DATA_LOGGING
   StartDataLogging();
 #endif // DATA_LOGGING
-  
+
 #ifdef SHOW_LED_STARTUP
   ShowStartUpLEDs();
 #endif // SHOW_LED_STARTUP
-
-
 
 // TESTS ALL PLACED HERE
 // =====================
@@ -136,6 +177,9 @@ void setup() {
   Test_TempColours();
 #endif
 
+#ifdef TEST_MESSAGE_QUEUE
+  Test_MessageQueue();
+#endif
   
 }; // End Setup
 

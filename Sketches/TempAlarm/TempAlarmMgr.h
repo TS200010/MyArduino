@@ -5,20 +5,22 @@
 #include "Task.h"
 #include "TaskScheduler.h"
 #include "TempProbe.h"
-#include "TriColLED.h";
+#include "TriColLED.h"
+#include "LCDWnd.h"
+
 
 class TempAlarmMgr : public TimedTask {
   public:
-    TempAlarmMgr();
-    void run( uint32_t now );     
-//  virtual bool canRun(uint32_t now); 
+    TempAlarmMgr();  
     bool Start();
+    void run( uint32_t now );   
 
   private:
     int        SDWriteCnt;  // To track SD versus LCD writes 
-    int        numSensors;
-    TempProbe *tempProbes[ g_numSensorsAndLEDs ];
-    TriColLED *triColLEDs[ g_numSensorsAndLEDs ];
+    TempProbe *ambTempProbe;
+    TempProbe *tempProbes[ g_numSensors ];
+    TriColLED *triColLEDs[ g_numLEDs ];
+    CLCDWnd   *LCDWnds[ g_numSensors ];
 };
 
 #endif

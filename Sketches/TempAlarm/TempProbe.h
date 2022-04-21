@@ -16,12 +16,6 @@ const int noMux = 255;
 // TEMPERATURE AND SENSORS
 // =======================
 
-// Probe read interval
-static const int readInterval = 10000;
-
-// Temperature range of interest
-static const int tMin = 20; // Shown as Green
-static const int tMax = 40; // Shown as Red - above this temp gas is certainly alight
 
 class TempProbe /*: public TimedTask*/ {
 public:
@@ -30,13 +24,14 @@ public:
 //virtual void run(uint32_t now);
       void    SetTemp();
       void    SetMux( CD74HC4067 *_mux, uint8_t _muxChannel ){ mux = _mux; muxChannel = _muxChannel; };
-const float   GetTemp()       { return temp; };
-const float   GetLastTemp()   { return lastTemp; }
-const tState  GetState()      { return state; };
-const colour  GetColour()     { return col; };
-const float   GetEMA()        { return EMA; };
-const float   GetLastEMA()    { return lastEMA; };
-const int     GetSticky()     { return sticky; };
+const float   GetTemp()         { return temp; };
+const float   GetLastTemp()     { return lastTemp; }
+const tState  GetState()        { return state; };
+const colour  GetColour()       { return col; };
+const float   GetEMA()          { return EMA; };
+const float   GetLastEMA()      { return lastEMA; };
+const int     GetSticky()       { return sticky; };
+      void    HasGasBeenLeftOn();
 
       void    ForceTemp( int i );  // Only to be used in testing
 
@@ -55,8 +50,8 @@ private:
        float      lastTemp        = NAN;
        tState     state           = tSteady;
        colour     col             = g_magenta;
-       int        EMA             = NAN;
-       int        lastEMA         = NAN;
+       float      EMA             = NAN;
+       float      lastEMA         = NAN;
        int        sticky          = 0;
 const  float      alpha           = 0.3; // Used in EMA calculation
 };

@@ -28,7 +28,7 @@
 */
 #include <SD.h>
 
-const int chipSelect = 10;
+const int chipSelect = 53;
 File root;
 
 void setup() {
@@ -40,11 +40,12 @@ void setup() {
   Serial.print("Initializing SD card...");
 
   if (!SD.begin(chipSelect)) {
-    Serial.println("initialization failed. Things to check:");
-    Serial.println("1. is a card inserted?");
-    Serial.println("2. is your wiring correct?");
-    Serial.println("3. did you change the chipSelect pin to match your shield or module?");
-    Serial.println("Note: press reset or reopen this Serial Monitor after fixing your issue!");
+    delay(500);
+    Serial.println("initialization failed. Things to check:");    delay(500);
+    Serial.println("1. is a card inserted?");    delay(500);
+    Serial.println("2. is your wiring correct?");    delay(500);
+    Serial.println("3. did you change the chipSelect pin to match your shield or module?");    delay(500);
+    Serial.println("Note: press reset or reopen this Serial Monitor after fixing your issue!");    delay(500);
     while (true);
   }
 
